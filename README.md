@@ -1,41 +1,81 @@
 ## 👋 Welcome to directus 🚀
 
-Directus - Headless CMS and data platform
+Open-source headless CMS and data platform
 
 ## 📋 Description
 
-Headless CMS and data platform
+Open-source headless CMS and data platform
 
 ## 🚀 Services
 
-- **app**: Directus (`directus/directus:latest`)
+- **app**: directus/directus:latest
 
 ## 📦 Installation
 
-```shell
+### Option 1: Quick Install
+```bash
+curl -q -LSsf "https://raw.githubusercontent.com/composemgr/directus/main/docker-compose.yaml" -o compose.yml
+```
+
+### Option 2: Git Clone
+```bash
+git clone "https://github.com/composemgr/directus" ~/.local/srv/docker/directus
+cd ~/.local/srv/docker/directus
+docker compose up -d
+```
+
+### Option 3: Using composemgr
+```bash
 composemgr install directus
 ```
 
 ## 🔧 Configuration
 
+### Environment Variables
+
 ```shell
 TZ=America/New_York
-BASE_HOST_NAME=directus.example.com
 ```
+
+See `docker-compose.yaml` for complete list of configurable options.
 
 ## 🌐 Access
 
-- **Directus**: http://localhost:8055
+- **Web Interface**: http://172.17.0.1:8055
 
 ## 📂 Volumes
 
-- `./rootfs/data/directus` - Application data
+- `./rootfs/data/directus` - Data storage
 
-## 🔐 Security
+## 🔍 Logging
 
-- Change default passwords
-- Configure HTTPS with reverse proxy
-- Regular backups
+```shell
+docker compose logs -f app
+```
+
+## 🛠️ Management
+
+```bash
+# Start services
+docker compose up -d
+
+# Stop services
+docker compose down
+
+# Update to latest images
+docker compose pull && docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Restart services
+docker compose restart
+```
+
+## 📋 Requirements
+
+- Docker Engine 20.10+
+- Docker Compose V2+
 
 ## 🤝 Author
 
