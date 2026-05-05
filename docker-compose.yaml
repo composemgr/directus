@@ -20,7 +20,7 @@ services:
     ports:
       - '172.17.0.1:8055:8055'
     volumes:
-      - './rootfs/data/directus:/data'
+      - './volumes/data/directus:/data'
     networks:
       - directus
 
