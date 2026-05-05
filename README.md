@@ -45,7 +45,7 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/data/directus` - Data storage
+- `./volumes/data/directus` - Data storage
 
 ## 🔍 Logging
 
