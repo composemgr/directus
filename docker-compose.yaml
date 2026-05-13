@@ -34,9 +34,11 @@ services:
       EMAIL_TRANSPORT: smtp
       EMAIL_SMTP_HOST: ${EMAIL_SERVER_HOST:-172.17.0.1}
       EMAIL_SMTP_PORT: ${EMAIL_SERVER_PORT:-587}
-      EMAIL_SMTP_USER: ${EMAIL_SERVER_USER:-}
-      EMAIL_SMTP_PASSWORD: ${EMAIL_SERVER_PASS:-}
+      EMAIL_SMTP_USER: ${EMAIL_SERVER_LOGIN_NAME:-}
+      EMAIL_SMTP_PASSWORD: ${EMAIL_SERVER_LOGIN_PASS:-}
       WEBSOCKETS_ENABLED: ${DIRECTUS_WEBSOCKETS:-true}
+      CONTAINER_NAME: directus-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     ports:
       - '172.17.0.1:8055:8055'
     volumes:
@@ -49,6 +51,24 @@ services:
         condition: service_healthy
     networks:
       - directus
+      - proxy
+      - cloudflare
+    labels:
+      - 'traefik.enable=true'
+      - 'cloudflare.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'cloudflare.service=http://directus-app:8055'
+      - 'cloudflare.hostname=directus.${CLOUDFLARE_ZONE_NAME:-}'
+      - 'traefik.http.routers.directus-app.entrypoints=http'
+      - 'traefik.http.routers.directus-app-secure.tls=true'
+      - 'traefik.http.routers.directus-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.middlewares.directus-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.directus-app.middlewares=directus-app-https-redirect'
+      - 'traefik.http.routers.directus-app-secure.entrypoints=https'
+      - 'traefik.http.routers.directus-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.routers.directus-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.directus-app-secure.service=directus-app'
+      - 'traefik.http.services.directus-app.loadbalancer.server.port=8055'
 
   directus-db:
     image: postgres:latest
@@ -62,6 +82,7 @@ services:
       POSTGRES_DB: ${DB_CREATE_DATABASE_NAME:-directus}
       POSTGRES_USER: ${DB_USER_NAME:-directus}
       POSTGRES_PASSWORD: ${DB_USER_PASS:-changeme_db_password}
+      CONTAINER_NAME: directus-db
     volumes:
       - './volumes/data/db/postgres/directus:/var/lib/postgresql/data'
     healthcheck:
@@ -79,6 +100,8 @@ services:
     restart: always
     pull_policy: always
     logging: *default-logging
+    environment:
+      CONTAINER_NAME: directus-redis
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
@@ -91,3 +114,7 @@ networks:
   directus:
     name: directus
     external: false
+  proxy:
+    external: true
+  cloudflare:
+    external: true
