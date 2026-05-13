@@ -18,7 +18,7 @@ services:
     environment:
       TZ: ${TZ:-America/New_York}
       KEY: ${APP_SECRET_KEY:-changeme_secret_key_min_32_chars}
-      SECRET: ${DIRECTUS_SECRET:-changeme_directus_secret_32chars}
+      SECRET: ${APP_SECRET_KEY:-changeme_directus_secret_32chars}
       PUBLIC_URL: http://${BASE_HOST_NAME:-localhost}:8055
       DB_CLIENT: pg
       DB_HOST: directus-db
