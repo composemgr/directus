@@ -17,8 +17,8 @@ services:
     logging: *default-logging
     environment:
       TZ: ${TZ:-America/New_York}
-      KEY: ${APP_SECRET_KEY:-changeme_secret_key_min_32_chars}
-      SECRET: ${APP_SECRET_KEY:-changeme_directus_secret_32chars}
+      KEY: ${APP_SECRET_KEY:-changeme_secret_key_min_32_chars_x}
+      SECRET: ${APP_SECRET_TOKEN_32:-changeme_directus_secret_32chars}
       PUBLIC_URL: http://${BASE_HOST_NAME:-localhost}:8055
       DB_CLIENT: pg
       DB_HOST: directus-db
