@@ -17,10 +17,73 @@ services:
     logging: *default-logging
     environment:
       TZ: ${TZ:-America/New_York}
+      KEY: ${APP_SECRET_KEY:-changeme_secret_key_min_32_chars}
+      SECRET: ${DIRECTUS_SECRET:-changeme_directus_secret_32chars}
+      PUBLIC_URL: http://${BASE_HOST_NAME:-localhost}:8055
+      DB_CLIENT: pg
+      DB_HOST: directus-db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_CREATE_DATABASE_NAME:-directus}
+      DB_USER: ${DB_USER_NAME:-directus}
+      DB_PASSWORD: ${DB_USER_PASS:-changeme_db_password}
+      ADMIN_EMAIL: ${APP_ADMIN_USER:-admin}@${BASE_DOMAIN_NAME:-example.com}
+      ADMIN_PASSWORD: ${APP_ADMIN_PASS:-changeme_admin_password}
+      REDIS_HOST: directus-redis
+      REDIS_PORT: 6379
+      EMAIL_FROM: ${EMAIL_SERVER_MAIL_FROM:-directus@example.com}
+      EMAIL_TRANSPORT: smtp
+      EMAIL_SMTP_HOST: ${EMAIL_SERVER_HOST:-172.17.0.1}
+      EMAIL_SMTP_PORT: ${EMAIL_SERVER_PORT:-587}
+      EMAIL_SMTP_USER: ${EMAIL_SERVER_USER:-}
+      EMAIL_SMTP_PASSWORD: ${EMAIL_SERVER_PASS:-}
+      WEBSOCKETS_ENABLED: ${DIRECTUS_WEBSOCKETS:-true}
     ports:
       - '172.17.0.1:8055:8055'
     volumes:
-      - './volumes/data/directus:/data'
+      - './volumes/data/directus/uploads:/directus/uploads'
+      - './volumes/data/directus/extensions:/directus/extensions'
+    depends_on:
+      directus-db:
+        condition: service_healthy
+      directus-redis:
+        condition: service_healthy
+    networks:
+      - directus
+
+  directus-db:
+    image: postgres:latest
+    container_name: directus-db
+    hostname: directus-db
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+      POSTGRES_DB: ${DB_CREATE_DATABASE_NAME:-directus}
+      POSTGRES_USER: ${DB_USER_NAME:-directus}
+      POSTGRES_PASSWORD: ${DB_USER_PASS:-changeme_db_password}
+    volumes:
+      - './volumes/data/db/postgres/directus:/var/lib/postgresql/data'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - directus
+
+  directus-redis:
+    image: redis:alpine
+    container_name: directus-redis
+    hostname: directus-redis
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - directus
 
