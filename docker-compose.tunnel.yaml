@@ -38,6 +38,12 @@ services:
       EMAIL_SMTP_USER: ${EMAIL_SERVER_LOGIN_NAME:-}
       EMAIL_SMTP_PASSWORD: ${EMAIL_SERVER_LOGIN_PASS:-}
       WEBSOCKETS_ENABLED: ${DIRECTUS_WEBSOCKETS:-true}
+    healthcheck:
+      test: ['CMD', 'nc', '-z', '127.0.0.1', '8055']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     volumes:
       - './volumes/data/directus/uploads:/directus/uploads:z'
       - './volumes/data/directus/extensions:/directus/extensions:z'
